@@ -119,7 +119,7 @@ public class MarkerClusterActivity extends Activity {
 			OverlayItem overlay=getItem(position);
 			BitmapDrawable bd=(BitmapDrawable) overlay.getMarker();
 			int mlenMarker =bd.getBitmap().getByteCount();//获取marker大小
-			BitmapDrawable	bdnav =(BitmapDrawable)(getResources().getDrawable(R.drawable.nav_turn_via_1));
+			BitmapDrawable	bdnav =(BitmapDrawable)(getResources().getDrawable(R.drawable.nav_turn_via_1));//资源中图片大小
 			int mlen =bdnav.getBitmap().getByteCount();
 			if(mlenMarker==mlen){//判断是否是海岛标注图标，如果是则跳转到详情页
 				String islad_name=overlay.getTitle();

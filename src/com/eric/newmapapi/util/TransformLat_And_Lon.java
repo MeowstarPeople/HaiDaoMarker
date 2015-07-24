@@ -1,7 +1,5 @@
 package com.eric.newmapapi.util;
 
-import android.util.Log;
-
 public class TransformLat_And_Lon {
 	final static double pi = 3.14159265358979324;
 	final static double a = 6378245.0;
@@ -11,8 +9,6 @@ public class TransformLat_And_Lon {
 	public static double ggLon;
 	public static double bd_lon;
 	public static double bd_lat;
-	
-
 	/**
 	 * GPS转google坐标进行转换,google坐标转百度
 	 * @param wgLat latitude纬度
@@ -95,6 +91,5 @@ public class TransformLat_And_Lon {
         double theta = Math.atan2(y, x) + 0.000003 * Math.cos(x * x_pi);
         bd_lon = z * Math.cos(theta) + 0.0065;
         bd_lat = z * Math.sin(theta) + 0.006;
-        Log.d("TAG", bd_lon+"---------"+bd_lat);
     }
 }

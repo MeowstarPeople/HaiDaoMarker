@@ -6,8 +6,8 @@ import com.baidu.mapapi.map.OverlayItem;
 import com.baidu.platform.comapi.basestruct.GeoPoint;
 
 public class ClusterMarker extends OverlayItem {
-	private GeoPoint mCenter;
-	private List<OverlayItem> mMarkers;
+	private GeoPoint mCenter;//中心点坐标
+	private List<OverlayItem> mMarkers;//覆盖物中的标注物
 	private MBound mGridBounds;
 	public ClusterMarker(GeoPoint geoPoint, String title, String spa) {
 		super(geoPoint, title, spa);

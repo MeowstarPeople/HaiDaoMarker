@@ -36,7 +36,13 @@ public class Cluster{
 		this.mDistance = mDistance;
 		mClusterMarkers = new ArrayList<ClusterMarker>();
 	}
-	
+	/**
+	 * 将list中的每一个item,创建或添加到最合适的ClusterMarker中,判断逻辑在addCluster()实现。
+	 * 根据每个ClusterMarker的大小,设置显示的图片资源,通过setClusterDrawable()实现。
+	 * 将ClusterMarker转换成OverlayItem,并返回
+	 * @param markerList
+	 * @return
+	 */
 	public ArrayList<OverlayItem> createCluster(List<OverlayItem> markerList){
 		this.mClusterMarkers.clear();
 		ArrayList<OverlayItem> itemList = new ArrayList<OverlayItem>();
@@ -44,40 +50,46 @@ public class Cluster{
 			addCluster(markerList.get(i));
 		}
 		for(int i=0;i<mClusterMarkers.size();i++){
-			ClusterMarker cm = mClusterMarkers.get(i);
-			setClusterDrawable(cm);
-			OverlayItem oi = new OverlayItem(cm.getmCenter(),cm.getTitle(),cm.getSnippet());
-			oi.setMarker(cm.getMarker());
+			ClusterMarker cmarker = mClusterMarkers.get(i);
+			setClusterDrawable(cmarker);
+			OverlayItem oi = new OverlayItem(cmarker.getmCenter(),cmarker.getTitle(),cmarker.getSnippet());
+			oi.setMarker(cmarker.getMarker());
 			itemList.add(oi);
 		}
 		return itemList;
 	}
-	
+	/**
+	 * 聚合物添加、判断的逻辑和方法
+	 * @param marker
+	 */
 	private void addCluster(OverlayItem marker){
 		GeoPoint markGeo = marker.getPoint();
-		if(mClusterMarkers.size()==0){
+		//判断当前的聚合物列表中有没有聚合物,第一次肯定是没有的,根据标注点信息，生成一个ClusterMarker.
+		if(mClusterMarkers.size()==0){ 
 			ClusterMarker clusterMarker = new ClusterMarker(marker.getPoint(), marker.getTitle(), marker.getSnippet());
 			clusterMarker.setMarker(marker.getMarker());
+			//向ClusterMarker中添加一个聚合物,isAveragerCenter,表示每次有新的标注物进来,是否要重新计算中心点坐标，一般都是要重新计算的
 			clusterMarker.AddMarker(marker, isAverageCenter);
+			//每个覆盖物都有一定的覆盖范围,通过MBound(左下，右上两个顶点的经纬度坐标 )
 			MBound bound = new MBound(markGeo.getLatitudeE6(),markGeo.getLongitudeE6(),markGeo.getLatitudeE6(),markGeo.getLongitudeE6());
-			bound = MapUtils.getExtendedBounds(mMapView, bound, mGridSize);
+			bound = MapUtils.getExtendedBounds(mMapView, bound, mGridSize);//扩大MBound的覆盖范围
 			clusterMarker.setmGridBounds(bound);
-			mClusterMarkers.add(clusterMarker);
+			mClusterMarkers.add(clusterMarker);//将建好的聚合物添加到聚合物列表中 
 		}else{
+			//如果聚合物列表中已经存在聚合物，就要逐个判断当前聚合物列表中哪个最适合将当前的标注物聚合进去
 			ClusterMarker clusterContain = null;
 			double distance = mDistance;
+			//遍历判断,标注点到列表中聚合物中心点的距,如果两个点的物理距离超过聚合距离,就不再到聚合列表中进行遍历判断
 			for(int i=0;i<mClusterMarkers.size();i++){
 				ClusterMarker clusterMarker = mClusterMarkers.get(i);
-				Log.e(TAG_ADD_Cluster, "in mClusterMarker.size  size = = "+mClusterMarkers.size());
 				GeoPoint center = clusterMarker.getmCenter();
 				double d = DistanceUtil.getDistance(center, marker.getPoint());
-				
-				if(d<distance){
+				if(d<distance){//选择clusterMarker中最近的clusterMarker
 					distance = d;
 					clusterContain = clusterMarker;
-				}else{
 				}
 			}
+			 //现存的clusterMarker 没有符合条件的,创建一个新的ClusterMarker 
 			if(clusterContain == null||!isMarkersInCluster(markGeo, clusterContain.getmGridBounds())){
 				ClusterMarker clusterMarker = new ClusterMarker(marker.getPoint(), marker.getTitle(), marker.getSnippet());
 				clusterMarker.setMarker(marker.getMarker());
@@ -87,12 +99,12 @@ public class Cluster{
 				clusterMarker.setmGridBounds(bound);
 				mClusterMarkers.add(clusterMarker);
 			}else{
-				clusterContain.AddMarker(marker, isAverageCenter);
-				Log.e(TAG_ADD_Cluster, "添加到选中 clusterMarker:--->clusterContain.size:---->"+clusterContain.getmMarkers().size());
+				clusterContain.AddMarker(marker, isAverageCenter);//创建ClusterMarker 成功，添加到聚合物列表中
 			}
 		}
 	}
 	
+	@SuppressWarnings("deprecation")
 	private void setClusterDrawable(ClusterMarker clusterMarker){
 		View drawableView = LayoutInflater.from(context).inflate(
 				R.layout.drawable_mark, null);

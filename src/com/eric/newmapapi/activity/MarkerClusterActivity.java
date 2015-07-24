@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.util.Log;
@@ -41,7 +42,7 @@ public class MarkerClusterActivity extends Activity {
 	private DemoApplication app;
 	public LocationClient mLocationClient = null;
 	public BDLocationListener myLocationListener = null;
-	//	public  ItemizedOverlay<OverlayItem> mOverlay;
+	//public  ItemizedOverlay<OverlayItem> mOverlay;
 	public  MyOverlay mOverlay;
 	private MyLocationOverlay myLocationOverlay;
 	private String TAG = "MarkerClusterActivity";
@@ -111,14 +112,22 @@ public class MarkerClusterActivity extends Activity {
 		public MyOverlay(Drawable arg0, MapView arg1) {
 			super(arg0, arg1);
 		}
+		//标注物点击触发事件
+		@SuppressWarnings("deprecation")
 		@Override
-		protected boolean onTap(int arg0) {
-			OverlayItem overlay=getItem(arg0);
-			String islad_name=overlay.getTitle();
-			Intent intent=new Intent(getApplicationContext(), IslandinfoActivity.class);
-			intent.putExtra("island_name", islad_name);
-			startActivity(intent);
-			return super.onTap(arg0);
+		protected boolean onTap(int position) {
+			OverlayItem overlay=getItem(position);
+			BitmapDrawable bd=(BitmapDrawable) overlay.getMarker();
+			int mlenMarker =bd.getBitmap().getByteCount();
+			BitmapDrawable	bdnav =(BitmapDrawable)(getResources().getDrawable(R.drawable.nav_turn_via_1));
+			int mlen =bdnav.getBitmap().getByteCount();
+			if(mlenMarker==mlen){//判断是否是海岛标注图标，如果是则跳转到详情页
+				String islad_name=overlay.getTitle();
+				Intent intent=new Intent(getApplicationContext(), IslandinfoActivity.class);
+				intent.putExtra("island_name", islad_name);
+				startActivity(intent);
+			}
+			return super.onTap(position);
 		}
 	}
 	@SuppressWarnings("deprecation")
